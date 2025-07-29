@@ -7,6 +7,7 @@ var levelDisplay = document.getElementById("level");
 var correctSound = document.getElementById("correct-sound");
 var gameSound = document.getElementById("game-sound");
 var wrongSound = document.getElementById("wrong-sound");
+var oversound= document.getElementById("over-sound");
 
 
 // Play game sound for each button press in sequence
@@ -18,11 +19,17 @@ function playCorrectSound() {
     correctSound.volume = 1.0; // Set volume to maximum (100%)
     correctSound.play();
 }
+function playOverSound() {
+    oversound.currentTime = 0;  
+    oversound.volume = 1.0; // Set volume to maximum (100%)
+    oversound.play();
+}
 
 // Play wrong sound when user makes a mistake
 function playWrongSound() {
     wrongSound.currentTime = 0;
     wrongSound.play();
+    wrongSound.volume = 1.0; // Set volume to maximum (100%)
 }
 
 startButton.addEventListener("click", ()=>{
@@ -36,6 +43,7 @@ let userStep = 0;
 function playSound() {
    
     gameSound.play();
+    gameSound.volume=0.25;
 }
 function startgame() {
     playSound(); // Play game sound when the game starts
@@ -63,27 +71,32 @@ function startgame() {
     window.currentSequence = sequence;
     window.userStep = userStep;
 }
+
+// Move this block outside of startgame so it is only defined once
 buttons.forEach((button, id) => {
     button.addEventListener("click", () => {
         if (sequence.length > 0) {
-             // Play sound on click
+            // Play sound on click
             if (id === sequence[userStep]) {
                 userStep++;
                 if (userStep === sequence.length) {
                     levelDisplay.textContent = Number(levelDisplay.textContent) + 1;
                     setTimeout(() => {
                         startgame();
-                        playCorrectSound() ; // Play correct sound when sequence is completed
+                        playCorrectSound(); // Play correct sound when sequence is completed
                     }, 500);
                 }
             } else {
+                playWrongSound(); // Play buzzer immediately
                 // Wrong button clicked
-                levelDisplay.textContent = "0";
-                alert("Wrong button! Try again.");
-                playWrongSound(); // Play wrong sound when user makes a mistake
-                startButton.style.display = "block";
-                sequence = [];
-                userStep = 0;
+                setTimeout(() => {
+                    playOverSound(); // Play over sound after 1.5 seconds
+                    levelDisplay.textContent = "0";
+                  
+                    startButton.style.display = "block";
+                    sequence = [];
+                    userStep = 0;
+                }, 1500);
             }
         }
     });
