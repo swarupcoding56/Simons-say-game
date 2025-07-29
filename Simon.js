@@ -3,6 +3,28 @@ var gameContainer = document.getElementById("game-container");
 var startButton = document.getElementById("start-button");
 var levelDisplay = document.getElementById("level");
 
+// 1. Map each button to a sound
+var correctSound = document.getElementById("correct-sound");
+var gameSound = document.getElementById("game-sound");
+var wrongSound = document.getElementById("wrong-sound");
+
+
+// Play game sound for each button press in sequence
+// (Removed duplicate playSound function to avoid redeclaration and unused parameter error)
+
+// Play correct sound when sequence is completed
+function playCorrectSound() {
+    correctSound.currentTime = 0;
+    correctSound.volume = 1.0; // Set volume to maximum (100%)
+    correctSound.play();
+}
+
+// Play wrong sound when user makes a mistake
+function playWrongSound() {
+    wrongSound.currentTime = 0;
+    wrongSound.play();
+}
+
 startButton.addEventListener("click", ()=>{
     startButton.style.display = "none";
     startgame();
@@ -11,17 +33,19 @@ startButton.addEventListener("click", ()=>{
 let sequence = [];
 let userStep = 0;
 
+function playSound() {
+   
+    gameSound.play();
+}
 function startgame() {
-    // If starting a new game, reset sequence and level
+    playSound(); // Play game sound when the game starts
     if (levelDisplay.textContent === "0") {
         sequence = [];
     }
-    // Add a new random button to the sequence
     var randomIndex = Math.floor(Math.random() * buttons.length);
     sequence.push(randomIndex);
     userStep = 0;
 
-    // Blink the sequence to the user
     let i = 0;
     function blinkNext() {
         if (i < sequence.length) {
@@ -36,26 +60,27 @@ function startgame() {
         }
     }
     blinkNext();
-    window.currentSequence = sequence; // Store globally if needed elsewhere
+    window.currentSequence = sequence;
     window.userStep = userStep;
 }
 buttons.forEach((button, id) => {
     button.addEventListener("click", () => {
-        // Only proceed if the game is running
         if (sequence.length > 0) {
+             // Play sound on click
             if (id === sequence[userStep]) {
                 userStep++;
                 if (userStep === sequence.length) {
-                    // User completed the sequence
                     levelDisplay.textContent = Number(levelDisplay.textContent) + 1;
                     setTimeout(() => {
                         startgame();
+                        playCorrectSound() ; // Play correct sound when sequence is completed
                     }, 500);
                 }
             } else {
                 // Wrong button clicked
                 levelDisplay.textContent = "0";
                 alert("Wrong button! Try again.");
+                playWrongSound(); // Play wrong sound when user makes a mistake
                 startButton.style.display = "block";
                 sequence = [];
                 userStep = 0;
